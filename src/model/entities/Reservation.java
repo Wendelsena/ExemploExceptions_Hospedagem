@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import model.exceptions.DomainException;
+
 public class Reservation {
 
 	private Integer roomNumber;
@@ -19,6 +21,9 @@ public class Reservation {
 	}
 
 	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) {
+		if (!(checkOut.after(checkIn))) {
+			throw new DomainException("Check-out date must be after check-in date");
+		}
 		this.roomNumber = roomNumber;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
@@ -45,21 +50,19 @@ public class Reservation {
 		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS); // converte o valor diff em milesegundos para dia.
 	}
 
-	// fazendo um update da data usando como argumento o checkIn e o checkOut
-	public String updateDates(Date checkIn, Date checkOut) {
+	// fazendo um update da data usando como argumento o checkIn e o checkOut.
+	// com o DomainException eu digo que pode lançar uma excessão desse tipo.
+	public void updateDates(Date checkIn, Date checkOut){  //throws DomainException -- não necessario
 
 		// (se checkIn ou checkOut forem antes que now faça).
 		Date now = new Date();
 		if (checkIn.before(now) || checkOut.before(now)) {
-			return "Reservation dates for update must be future dates";
-		}
-		if (!(checkOut.after(checkIn))) {
-			return "Check-out date must be after check-in date";
+			throw new DomainException("Reservation dates for update must be future dates");
 		}
 
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
-		return null; // null para garantir que nenhum erro aconteca
+
 	}
 
 	@Override // Sempre usamos no toString pq é um caso de sobreposição qualquer
